@@ -2,36 +2,29 @@ package com.emileni.ktx_games
 
 import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.math.Rectangle
+import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.ScreenUtils
 
 class Game : ApplicationAdapter() {
 
     private lateinit var batch: SpriteBatch
 
-    private lateinit var attackHelicopterImage: Texture
-    private lateinit var attackHelicopter: Rectangle
-    private var attackHelicopterXSpeed = 100f
-    private var attackHelicopterYSpeed = 100f
+    private lateinit var attackHelicopter: AttackHelicopter
 
     private lateinit var camera: OrthographicCamera
 
     override fun create() {
-        attackHelicopterImage = Texture("attackhelicopter.PNG")
 
         camera = OrthographicCamera()
         camera.setToOrtho(false, 800f, 480f)
 
-        // Centering the helicopter to the screen
-        attackHelicopter = Rectangle()
-        attackHelicopter.x = 800f / 2 - attackHelicopterImage.width / 2
-        attackHelicopter.y = 480f / 2 - attackHelicopterImage.height / 2
-        attackHelicopter.width = attackHelicopterImage.width.toFloat()
-        attackHelicopter.height = attackHelicopterImage.height.toFloat()
+        attackHelicopter = AttackHelicopter("attackhelicopter.PNG")
+        attackHelicopter.centerToViewport(camera.viewportWidth, camera.viewportHeight)
 
         batch = SpriteBatch()
     }
@@ -44,24 +37,38 @@ class Game : ApplicationAdapter() {
         batch.projectionMatrix = camera.combined
 
         batch.begin()
-        batch.draw(attackHelicopterImage, attackHelicopter.x, attackHelicopter.y)
+        batch.draw(attackHelicopter, attackHelicopter.x, attackHelicopter.y)
+        drawPositionOfSprite(attackHelicopter, batch, 0f, 480f)
         batch.end()
 
-        attackHelicopter.x += attackHelicopterXSpeed * Gdx.graphics.deltaTime
-        attackHelicopter.y += attackHelicopterYSpeed * Gdx.graphics.deltaTime
+        // Move attack helicopter with touch
+        moveSpriteWithTouch(attackHelicopter)
 
         // Check if attack helicopter is colliding with any of the walls
-        // If it is, make it turn around
-        if (attackHelicopter.x <= 0 || attackHelicopter.x >= 800 - attackHelicopterImage.width) {
-            attackHelicopterXSpeed *= -1
-        }
-        if (attackHelicopter.y <= 0 || attackHelicopter.y >= 480 - attackHelicopterImage.height) {
-            attackHelicopterYSpeed *= -1
-        }
+        attackHelicopter.collideWithViewport(camera.viewportWidth, camera.viewportHeight)
     }
 
     override fun dispose() {
-        attackHelicopterImage.dispose()
         batch.dispose()
+    }
+
+    private fun moveSpriteWithTouch(sprite: Sprite) {
+        if (Gdx.input.isTouched) {
+            val touchPos = Vector3(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), 0f)
+            camera.unproject(touchPos)
+            sprite.x = touchPos.x - sprite.width / 2
+            sprite.y = touchPos.y - sprite.height / 2
+        }
+    }
+
+    private fun drawPositionOfSprite(sprite: Sprite, batch: SpriteBatch, x: Float, y: Float) {
+        val textualPosition = BitmapFont()
+        textualPosition.color = Color.BLACK
+        textualPosition.draw(
+            batch,
+            sprite.x.toInt().toString() + ", " + sprite.y.toInt().toString(),
+            x,
+            y
+        )
     }
 }
