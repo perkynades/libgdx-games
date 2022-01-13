@@ -11,34 +11,27 @@ import com.badlogic.gdx.utils.ScreenUtils
 
 class Game : ApplicationAdapter() {
     private lateinit var batch: SpriteBatch
-    private lateinit var attackHelicopter: AttackHelicopter
     private lateinit var camera: OrthographicCamera
 
-    private lateinit var helicopterAnimation: Animation<TextureRegion>
-    private lateinit var helicopterSheet: Texture
+    private var viewportWidth = 800f
+    private var viewportHeight = 800f
+
     private var stateTime = 0f
+
+    private lateinit var attackHelicopter: AttackHelicopter
 
     override fun create() {
         camera = OrthographicCamera()
-        camera.setToOrtho(false, 800f, 480f)
+        camera.setToOrtho(false, viewportWidth, viewportHeight)
 
-        attackHelicopter = AttackHelicopter("attackhelicopter.PNG")
-        attackHelicopter.centerToViewport(camera.viewportWidth, camera.viewportHeight)
 
-        helicopterSheet = Texture(Gdx.files.internal("helicopterSprites.png"))
-        val tmp: Array<Array<TextureRegion>> = TextureRegion.split(
-            helicopterSheet,
-            helicopterSheet.width / 4,
-            helicopterSheet.height / 1
+        attackHelicopter = AttackHelicopter(
+            5f,
+            5f,
+            camera
         )
-
-        val helicopterFrames = com.badlogic.gdx.utils.Array<TextureRegion>(4)
-
-        for (i in 0..3) {
-            helicopterFrames.add(tmp[0][i])
-        }
-
-        helicopterAnimation = Animation<TextureRegion>(0.100f, helicopterFrames)
+        attackHelicopter.centerToViewport()
+        attackHelicopter.flipAnimation()
 
         batch = SpriteBatch()
 
@@ -53,22 +46,20 @@ class Game : ApplicationAdapter() {
 
         batch.projectionMatrix = camera.combined
 
-        val currentHelicopterFrame: TextureRegion = helicopterAnimation.getKeyFrame(stateTime, true)
+        val currentHelicopterFrame: TextureRegion = attackHelicopter.textureAnimation.getKeyFrame(stateTime, true)
         batch.begin()
         batch.draw(
             currentHelicopterFrame,
-            100f,
-            100f
+            attackHelicopter.x,
+            attackHelicopter.y
         )
-        //batch.draw(attackHelicopter, attackHelicopter.x, attackHelicopter.y)
-        //drawPositionOfSprite(attackHelicopter, batch, 0f, 480f)
+
         batch.end()
 
-        // Move attack helicopter with touch
-        //moveSpriteWithTouch(attackHelicopter)
+        attackHelicopter.x += attackHelicopter.xSpeed
+        attackHelicopter.y += attackHelicopter.ySpeed
 
-        // Check if attack helicopter is colliding with any of the walls
-        //attackHelicopter.collideWithViewport(camera.viewportWidth, camera.viewportHeight)
+        attackHelicopter.collideWithWall()
     }
 
     override fun dispose() {
