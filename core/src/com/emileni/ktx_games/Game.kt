@@ -18,20 +18,18 @@ class Game : ApplicationAdapter() {
 
     private var stateTime = 0f
 
-    private lateinit var attackHelicopter: AttackHelicopter
+    private var attackHelicopterRegister: AttackHelicopterRegister = AttackHelicopterRegister()
 
     override fun create() {
         camera = OrthographicCamera()
         camera.setToOrtho(false, viewportWidth, viewportHeight)
 
+        attackHelicopterRegister.fillRegister(3)
 
-        attackHelicopter = AttackHelicopter(
-            5f,
-            5f,
-            camera
-        )
-        attackHelicopter.centerToViewport()
-        attackHelicopter.flipAnimation()
+        val positions = List<AttackHelicopterPosition>(3) { AttackHelicopterPosition(100f, 100f) }.toMutableList()
+        positions[1] = AttackHelicopterPosition(250f, 250f)
+        positions[2] = AttackHelicopterPosition(450f, 450f)
+        attackHelicopterRegister.positionAttackHelicopters(positions)
 
         batch = SpriteBatch()
 
@@ -46,20 +44,13 @@ class Game : ApplicationAdapter() {
 
         batch.projectionMatrix = camera.combined
 
-        val currentHelicopterFrame: TextureRegion = attackHelicopter.textureAnimation.getKeyFrame(stateTime, true)
         batch.begin()
-        batch.draw(
-            currentHelicopterFrame,
-            attackHelicopter.x,
-            attackHelicopter.y
-        )
-
+        attackHelicopterRegister.drawAttackHelicopters(batch, stateTime)
         batch.end()
 
-        attackHelicopter.x += attackHelicopter.xSpeed
-        attackHelicopter.y += attackHelicopter.ySpeed
-
-        attackHelicopter.collideWithWall()
+        attackHelicopterRegister.moveAttackHelicopters()
+        attackHelicopterRegister.collideAttackHelicoptersWithWall(camera)
+        attackHelicopterRegister.collideWithOtherAttackHelicopters()
     }
 
     override fun dispose() {

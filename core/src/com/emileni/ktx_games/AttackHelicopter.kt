@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 class AttackHelicopter(
     var xSpeed: Float,
     var ySpeed: Float,
-    var camera: OrthographicCamera
 ) : TextureAnimation(
     0.100f,
     4,
@@ -18,7 +17,7 @@ class AttackHelicopter(
     private val width = textureAnimation.getKeyFrame(0f).regionWidth
     private val height = textureAnimation.getKeyFrame(0f).regionHeight
 
-    fun collideWithWall() {
+    fun collideWithWall(camera: OrthographicCamera) {
         if (x < 0) {
             flipAnimation()
             xSpeed *= -1
@@ -35,8 +34,15 @@ class AttackHelicopter(
         }
     }
 
-    fun centerToViewport() {
-        x = camera.viewportWidth / 2 - width / 2
-        y = camera.viewportHeight / 2 - height / 2
+    fun isCollidingWithHelicopter(other: AttackHelicopter): Boolean {
+        return (x < other.x + other.width
+                && x + width > other.x
+                && y < other.y + other.height
+                && height + y > other.y)
+    }
+
+    fun mirrorSpeed() {
+        xSpeed *= -1
+        ySpeed *= -1
     }
 }
