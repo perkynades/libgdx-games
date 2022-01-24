@@ -1,12 +1,9 @@
 package com.emileni.ktx_games
 
 import com.badlogic.gdx.ApplicationAdapter
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.*
-import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.ScreenUtils
 
 class Game : ApplicationAdapter() {
@@ -16,64 +13,109 @@ class Game : ApplicationAdapter() {
     private var viewportWidth = 800f
     private var viewportHeight = 800f
 
-    private var stateTime = 0f
+    private lateinit var paddle1: Paddle
+    private lateinit var paddle2: Paddle
+    private var paddle1Score = 0
+    private var paddle2Score = 0
 
-    private var attackHelicopterRegister: AttackHelicopterRegister = AttackHelicopterRegister()
+    private lateinit var ball: Ball
+
+    private var paddleWinText = ""
 
     override fun create() {
         camera = OrthographicCamera()
         camera.setToOrtho(false, viewportWidth, viewportHeight)
 
-        attackHelicopterRegister.fillRegister(3)
+        paddle1 = Paddle(20f, viewportHeight / 2 - 75f, 20f, 150f, Color.BLACK, true, false)
+        paddle2 = Paddle(760f, viewportHeight / 2 - 75f, 20f, 150f, Color.BLACK, false, true)
 
-        val positions = List<AttackHelicopterPosition>(3) { AttackHelicopterPosition(100f, 100f) }.toMutableList()
-        positions[1] = AttackHelicopterPosition(250f, 250f)
-        positions[2] = AttackHelicopterPosition(450f, 450f)
-        attackHelicopterRegister.positionAttackHelicopters(positions)
+        ball = Ball(camera)
+
+        paddle1.setControls()
+        paddle2.setControls()
 
         batch = SpriteBatch()
-
-        stateTime = 0f
     }
 
     override fun render() {
         ScreenUtils.clear(1f, 1f, 1f, 0f)
-        stateTime += Gdx.graphics.deltaTime
 
         camera.update()
 
         batch.projectionMatrix = camera.combined
 
         batch.begin()
-        attackHelicopterRegister.drawAttackHelicopters(batch, stateTime)
+        paddle1.draw(batch)
+        paddle2.draw(batch)
+        ball.draw(batch)
+
+        drawScore(batch, paddle1Score, viewportWidth / 2 - 80f, 760f)
+        drawScore(batch, paddle2Score, viewportWidth / 2 + 80f, 760f)
+        displayText(batch, paddleWinText, viewportWidth / 2, 600f)
+
         batch.end()
 
-        attackHelicopterRegister.moveAttackHelicopters()
-        attackHelicopterRegister.collideAttackHelicoptersWithWall(camera)
-        attackHelicopterRegister.collideWithOtherAttackHelicopters()
+        paddle1.movePaddle(camera)
+        paddle2.movePaddle(camera)
+
+        ball.moveBall()
+
+        ball.collideWithPaddles(paddle1, paddle2)
+        ball.bounceWithCeilingAndFloor()
+        paddleWin()
+    }
+
+    private fun paddleWin() {
+        var won = false
+        // Paddle 2 win
+        if (ball.x < 0) {
+            won = true
+            paddle2Score++
+        }
+        // Paddle 1 win
+        if (ball.x > viewportWidth - (ball.width)) {
+            won = true
+            paddle1Score++
+        }
+
+        //reset game
+        if (won) {
+            ball.x = viewportWidth / 2f - (ball.width / 2f)
+            ball.y = viewportHeight / 2f - (ball.height / 2f)
+        }
+
+        // Paddle 1 wins whole game
+        if (paddle1Score  == 21) {
+            ball.x = viewportWidth / 2f - (ball.width / 2f)
+            ball.y = viewportHeight / 2f - (ball.height / 2f)
+
+            paddleWinText = "Paddle1 wins!"
+        }
+        // Paddle 2 wins whole game
+        if (paddle2Score == 21) {
+            ball.x = viewportWidth / 2f - (ball.width / 2f)
+            ball.y = viewportHeight / 2f - (ball.height / 2f)
+
+            paddleWinText = "Paddle 2 wins!"
+        }
+    }
+
+    private fun drawScore(batch: SpriteBatch, score: Int, x: Float, y: Float) {
+        val textualScore = BitmapFont()
+        textualScore.color = Color.BLACK
+        textualScore.data.setScale(2.3f, 2.3f)
+        textualScore.draw(batch, score.toString(), x, y)
+    }
+
+    private fun displayText(batch: SpriteBatch, text: String, x: Float, y: Float) {
+        val textual = BitmapFont()
+        textual.color = Color.BLACK
+        textual.data.setScale(2.3f, 2.3f)
+        textual.draw(batch, text, x, y)
     }
 
     override fun dispose() {
         batch.dispose()
     }
 
-    private fun moveSpriteWithTouch(sprite: Sprite) {
-        if (Gdx.input.isTouched) {
-            val touchPos = Vector3(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), 0f)
-            camera.unproject(touchPos)
-            sprite.x = touchPos.x - sprite.width / 2
-            sprite.y = touchPos.y - sprite.height / 2
-        }
-    }
-
-    private fun drawPositionOfSprite(sprite: Sprite, batch: SpriteBatch, x: Float, y: Float) {
-        val textualPosition = BitmapFont()
-        textualPosition.color = Color.BLACK
-        textualPosition.draw(
-            batch,
-            sprite.x.toInt().toString() + ", " + sprite.y.toInt().toString(),
-            x,
-            y
-        )
-    }
 }
