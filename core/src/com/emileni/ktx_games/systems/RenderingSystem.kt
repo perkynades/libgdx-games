@@ -20,7 +20,7 @@ class RenderingSystem(private val batch: SpriteBatch) : SortedIteratingSystem(
     ZComparator()
 ) {
     private var renderQueue: Array<Entity> = Array()
-    private val camera: OrthographicCamera
+    val camera: OrthographicCamera
     private val renderUtils: RenderUtils = RenderUtils()
     private lateinit var entityComparator: Comparator<Entity>
 

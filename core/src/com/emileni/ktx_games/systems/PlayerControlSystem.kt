@@ -7,7 +7,7 @@ import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.math.MathUtils
-import com.emileni.ktx_games.components.B2dBodyComponent
+import com.emileni.ktx_games.components.BodyComponent
 import com.emileni.ktx_games.components.EntityState
 import com.emileni.ktx_games.components.EntityStateComponent
 import com.emileni.ktx_games.components.PlayerComponent
@@ -17,20 +17,20 @@ class PlayerControlSystem : IteratingSystem(
 ) {
     private val playerMapper: ComponentMapper<PlayerComponent> =
         ComponentMapper.getFor(PlayerComponent().javaClass)
-    private val bodyMapper: ComponentMapper<B2dBodyComponent> =
-        ComponentMapper.getFor(B2dBodyComponent().javaClass)
+    private val bodyMapper: ComponentMapper<BodyComponent> =
+        ComponentMapper.getFor(BodyComponent().javaClass)
     private val entityStateMapper: ComponentMapper<EntityStateComponent> =
         ComponentMapper.getFor(EntityStateComponent(EntityState.NORMAL).javaClass)
 
     override fun processEntity(entity: Entity, deltaTime: Float) {
-        val b2dBodyComponent: B2dBodyComponent = bodyMapper.get(entity)
+        val bodyComponent: BodyComponent = bodyMapper.get(entity)
         val entityStateComponent: EntityStateComponent = entityStateMapper.get(entity)
 
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            b2dBodyComponent.body!!.setLinearVelocity(
-                b2dBodyComponent.body!!.linearVelocity.x,
+            bodyComponent.body!!.setLinearVelocity(
+                bodyComponent.body!!.linearVelocity.x,
                 MathUtils.lerp(
-                    b2dBodyComponent.body!!.linearVelocity.y,
+                    bodyComponent.body!!.linearVelocity.y,
                     -5f,
                     0.2f
                 )
@@ -38,11 +38,11 @@ class PlayerControlSystem : IteratingSystem(
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            b2dBodyComponent.body!!.setLinearVelocity(
-                b2dBodyComponent.body!!.linearVelocity.x,
+            bodyComponent.body!!.setLinearVelocity(
+                bodyComponent.body!!.linearVelocity.x,
                 MathUtils.lerp(
-                    b2dBodyComponent.body!!.linearVelocity.y,
-                    -5f,
+                    bodyComponent.body!!.linearVelocity.y,
+                    5f,
                     0.2f
                 )
             )

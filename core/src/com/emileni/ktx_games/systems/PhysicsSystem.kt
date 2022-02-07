@@ -9,12 +9,12 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.utils.Array
-import com.emileni.ktx_games.components.B2dBodyComponent
+import com.emileni.ktx_games.components.BodyComponent
 import com.emileni.ktx_games.components.TransformComponent
 
 class PhysicsSystem(private val world: World) : IteratingSystem(
     Family.all(
-        B2dBodyComponent().javaClass,
+        BodyComponent().javaClass,
         TransformComponent().javaClass
     ).get()
 ) {
@@ -23,8 +23,8 @@ class PhysicsSystem(private val world: World) : IteratingSystem(
 
     private val bodiesQueue: Array<Entity> = Array()
 
-    private val bodyMapper: ComponentMapper<B2dBodyComponent> =
-        ComponentMapper.getFor(B2dBodyComponent().javaClass)
+    private val bodyMapper: ComponentMapper<BodyComponent> =
+        ComponentMapper.getFor(BodyComponent().javaClass)
     private val transformMapper: ComponentMapper<TransformComponent> =
         ComponentMapper.getFor(TransformComponent().javaClass)
 
@@ -39,7 +39,7 @@ class PhysicsSystem(private val world: World) : IteratingSystem(
 
             bodiesQueue.forEach {
                 val transformComponent: TransformComponent = transformMapper.get(it)
-                val bodyComponent: B2dBodyComponent = bodyMapper.get(it)
+                val bodyComponent: BodyComponent = bodyMapper.get(it)
                 val bodyPos: Vector2 = bodyComponent.body!!.position
                 transformComponent.position = Vector3(bodyPos, 0f)
                 transformComponent.rotation = bodyComponent.body!!.angle * MathUtils.radiansToDegrees
