@@ -17,6 +17,7 @@ class Game : ApplicationAdapter() {
     private lateinit var paddle2: Paddle
     private var paddle1Score = 0
     private var paddle2Score = 0
+    private var paddleScores: PaddleScoresSingleton = PaddleScoresSingleton
 
     private lateinit var ball: Ball
 
@@ -70,12 +71,12 @@ class Game : ApplicationAdapter() {
         // Paddle 2 win
         if (ball.x < 0) {
             won = true
-            paddle2Score++
+            paddleScores.paddle2Score++
         }
         // Paddle 1 win
         if (ball.x > viewportWidth - (ball.width)) {
             won = true
-            paddle1Score++
+            paddleScores.paddle1Score++
         }
 
         //reset game
