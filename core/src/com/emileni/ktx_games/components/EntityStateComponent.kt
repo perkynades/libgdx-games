@@ -3,7 +3,7 @@ package com.emileni.ktx_games.components
 import com.badlogic.ashley.core.Component
 
 class EntityStateComponent(
-    initState: EntityState,
+    initState: EntityState = EntityState.NORMAL,
     var time: Float = 0.0f,
     var isLooping: Boolean = false
 ) : Component{

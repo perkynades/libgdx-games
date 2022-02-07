@@ -33,5 +33,5 @@ class MainScreen : ApplicationAdapter() {
         engine.addSystem(CollisionSystem())
         engine.addSystem(PlayerControlSystem())
     }
-    
+
 }
