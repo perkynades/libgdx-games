@@ -1,6 +1,8 @@
 package com.emileni.ktx_games.entities
 
 import com.badlogic.ashley.core.PooledEngine
+import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.emileni.ktx_games.components.*
 
 class PlayerEntity(private val engine: PooledEngine) : Entity {
@@ -14,5 +16,12 @@ class PlayerEntity(private val engine: PooledEngine) : Entity {
         val collisionComponent: CollisionComponent = engine.createComponent(CollisionComponent().javaClass)
         val entityTypeComponent: EntityTypeComponent = engine.createComponent(EntityTypeComponent().javaClass)
         val entityStateComponent: EntityStateComponent = engine.createComponent(EntityStateComponent().javaClass)
+
+        transformComponent.position.set(10f, 10f, 0f)
+        textureComponent.textureRegion = TextureRegion(Texture("rect.png"))
+
+        entityTypeComponent.entityType = EntityType.PLAYER
+        entityStateComponent.setCurrentState(EntityState.NORMAL)
+
     }
 }
