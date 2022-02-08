@@ -5,11 +5,11 @@ import com.badlogic.gdx.physics.box2d.*
 class BodyFactory private constructor(private val world: World) {
     companion object : SingletonHolder<BodyFactory, World>(::BodyFactory)
 
-    fun makeFixture(matieral: Materials, shape: Shape): FixtureDef {
+    fun makeFixture(material: Materials, shape: Shape): FixtureDef {
         val fixtureDef = FixtureDef()
         fixtureDef.shape = shape
 
-        when (matieral) {
+        when (material) {
             Materials.STEEL -> {
                 fixtureDef.density = 1f
                 fixtureDef.friction = 0.3f

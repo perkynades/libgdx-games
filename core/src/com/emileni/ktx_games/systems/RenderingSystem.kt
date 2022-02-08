@@ -22,7 +22,6 @@ class RenderingSystem(private val batch: SpriteBatch) : SortedIteratingSystem(
     private var renderQueue: Array<Entity> = Array()
     val camera: OrthographicCamera
     private val renderUtils: RenderUtils = RenderUtils()
-    private lateinit var entityComparator: Comparator<Entity>
 
     private val textureMapper: ComponentMapper<TextureComponent> =
         ComponentMapper.getFor(TextureComponent().javaClass)
@@ -37,7 +36,7 @@ class RenderingSystem(private val batch: SpriteBatch) : SortedIteratingSystem(
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
 
-        renderQueue.sort(entityComparator)
+        renderQueue.sort(ZComparator())
 
         camera.update()
         batch.projectionMatrix = camera.combined
