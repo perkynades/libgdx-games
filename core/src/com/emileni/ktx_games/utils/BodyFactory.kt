@@ -1,8 +1,6 @@
 package com.emileni.ktx_games.utils
 
-import com.badlogic.gdx.physics.box2d.FixtureDef
-import com.badlogic.gdx.physics.box2d.Shape
-import com.badlogic.gdx.physics.box2d.World
+import com.badlogic.gdx.physics.box2d.*
 
 class BodyFactory private constructor(private val world: World) {
     companion object : SingletonHolder<BodyFactory, World>(::BodyFactory)
@@ -40,5 +38,52 @@ class BodyFactory private constructor(private val world: World) {
         }
 
         return fixtureDef
+    }
+
+    fun makeCirclePolyBody(
+        posX: Float,
+        posY: Float,
+        radius: Float,
+        material: Materials,
+        bodyType: BodyDef.BodyType,
+        fixedRotation: Boolean
+    ): Body {
+        val circleBodyDef = BodyDef()
+        circleBodyDef.type = bodyType
+        circleBodyDef.position.x = posX
+        circleBodyDef.position.y = posY
+        circleBodyDef.fixedRotation = fixedRotation
+
+        val circleBody: Body = world.createBody(circleBodyDef)
+        val circleShape = CircleShape()
+        circleShape.radius = radius / 2
+        circleBody.createFixture(this.makeFixture(material, circleShape))
+        circleShape.dispose()
+
+        return circleBody
+    }
+
+    fun makeBoxPolyBody(
+        posX: Float,
+        posY: Float,
+        width: Float,
+        height: Float,
+        material: Materials,
+        bodyType: BodyDef.BodyType,
+        fixedRotation: Boolean
+    ): Body {
+        val boxBodyDef = BodyDef()
+        boxBodyDef.type = bodyType
+        boxBodyDef.position.x = posX
+        boxBodyDef.position.y = posY
+        boxBodyDef.fixedRotation = fixedRotation
+
+        val boxBody = world.createBody(boxBodyDef)
+        val polyShape = PolygonShape()
+        polyShape.setAsBox(width / 2, height / 2)
+        boxBody.createFixture(makeFixture(material, polyShape))
+        polyShape.dispose()
+
+        return boxBody
     }
 }
