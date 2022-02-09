@@ -11,8 +11,9 @@ import com.emileni.ktx_games.components.BodyComponent
 import com.emileni.ktx_games.components.EntityState
 import com.emileni.ktx_games.components.EntityStateComponent
 import com.emileni.ktx_games.components.PlayerComponent
+import com.emileni.ktx_games.controllers.KeyboardController
 
-class PlayerControlSystem : IteratingSystem(
+class PlayerControlSystem(private val keyboardController: KeyboardController) : IteratingSystem(
     Family.all(PlayerComponent().javaClass).get()
 ) {
     private val playerMapper: ComponentMapper<PlayerComponent> =
@@ -26,25 +27,38 @@ class PlayerControlSystem : IteratingSystem(
         val bodyComponent: BodyComponent = bodyMapper.get(entity)
         val entityStateComponent: EntityStateComponent = entityStateMapper.get(entity)
 
-        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+        if (bodyComponent.body!!.linearVelocity.y > 0) {
+            entityStateComponent.setCurrentState(EntityState.FALLING)
+        }
+
+        if (bodyComponent.body!!.linearVelocity.y.toInt() == 0) {
+            if (entityStateComponent.getCurrentState() == EntityState.FALLING) {
+                entityStateComponent.setCurrentState(EntityState.NORMAL)
+            }
+            if (bodyComponent.body!!.linearVelocity.x.toInt() != 0) {
+                entityStateComponent.setCurrentState(EntityState.MOVING)
+            }
+        }
+
+        if (keyboardController.up) {
             bodyComponent.body!!.setLinearVelocity(
-                bodyComponent.body!!.linearVelocity.x,
                 MathUtils.lerp(
                     bodyComponent.body!!.linearVelocity.y,
                     -5f,
                     0.2f
-                )
+                ),
+                bodyComponent.body!!.linearVelocity.x
             )
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+        if (keyboardController.down) {
             bodyComponent.body!!.setLinearVelocity(
-                bodyComponent.body!!.linearVelocity.x,
                 MathUtils.lerp(
                     bodyComponent.body!!.linearVelocity.y,
                     5f,
                     0.2f
-                )
+                ),
+                bodyComponent.body!!.linearVelocity.x
             )
         }
     }

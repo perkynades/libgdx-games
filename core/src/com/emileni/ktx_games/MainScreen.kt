@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.World
+import com.emileni.ktx_games.controllers.KeyboardController
 import com.emileni.ktx_games.entities.PlayerEntity
 import com.emileni.ktx_games.systems.*
 import com.emileni.ktx_games.utils.GameContactListener
@@ -18,13 +19,13 @@ class MainScreen : ApplicationAdapter() {
     private lateinit var renderingSystem: RenderingSystem
     private lateinit var camera: OrthographicCamera
     private lateinit var engine: PooledEngine
-
+    private lateinit var keyboardController: KeyboardController
     override fun create() {
         batch = SpriteBatch()
         renderingSystem = RenderingSystem(batch)
         camera = renderingSystem.camera
         batch.projectionMatrix = camera.combined
-
+        keyboardController = KeyboardController()
         world = World(Vector2(0f, 0f), true)
         world.setContactListener(GameContactListener())
 
@@ -34,7 +35,7 @@ class MainScreen : ApplicationAdapter() {
         engine.addSystem(renderingSystem)
         engine.addSystem(PhysicsSystem(world))
         engine.addSystem(CollisionSystem())
-        engine.addSystem(PlayerControlSystem())
+        engine.addSystem(PlayerControlSystem(keyboardController))
 
         PlayerEntity(engine, world).create()
     }
@@ -42,7 +43,7 @@ class MainScreen : ApplicationAdapter() {
     override fun render() {
         Gdx.gl.glClearColor(1f, 1f, 1f, 0f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
+        Gdx.input.inputProcessor = keyboardController
         engine.update(Gdx.graphics.deltaTime)
     }
 
